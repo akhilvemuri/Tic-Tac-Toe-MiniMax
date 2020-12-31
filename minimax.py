@@ -1,6 +1,6 @@
 board = [[0]*3 for i in range(3)]   
-HUMAN = -1  # The human is the minimizing player
-COMP = 1    # The AI is the maximizing player
+MIN = -1  # The human is the minimizing player
+MAX = 1    # The AI is the maximizing player
 
 
 def display_board(inputs):
@@ -45,7 +45,7 @@ def win(player, state):
     """
     Has a player has won the game
 
-    :param player: HUMAN or COMP
+    :param player: MIN or MAX
     :param state: the current board
     :return: bool
     """
@@ -68,7 +68,7 @@ def is_game_over(state):
 
     :return: bool
     """
-    return not empty_spaces(state) or win(HUMAN, state) or win(COMP, state)
+    return not empty_spaces(state) or win(MIN, state) or win(MAX, state)
 
 def empty_spaces(state):
     """
@@ -116,7 +116,7 @@ def human_turn():
         try:
             pos = int(input('Your Turn (X)! Enter a coordinate (1..9): '))
             coords = moves[pos]
-            successful_move = make_move(HUMAN, coords[0], coords[1])
+            successful_move = make_move(MIN, coords[0], coords[1])
 
             if not successful_move:
                 print('\nInvalid input. Please try again.')
@@ -135,9 +135,9 @@ def minimax(state, depth, player):
     :return: array of [x_pos, y_pos, best_eval]
     """
     if depth == 0 or is_game_over(state):       # Base case
-        if win(COMP, state):
+        if win(MAX, state):
             static_eval = 1
-        elif win(HUMAN, state):
+        elif win(MIN, state):
             static_eval = -1
         else:
             static_eval = 0
@@ -145,7 +145,7 @@ def minimax(state, depth, player):
         # of current position
         return [-1, -1, static_eval]
 
-    if player == COMP:
+    if player == MAX:
         best_eval = [-1, -1, float('-inf')]     # Min initial for maximizing player
     else:
         best_eval = [-1, -1, float('inf')]      # Max initial for minimizing player
@@ -157,7 +157,7 @@ def minimax(state, depth, player):
         state[pos_x][pos_y] = 0     # Reset to empty state
         curr_eval[0], curr_eval[1] = pos_x, pos_y       # Add "best" pos_x & pos_y for AI's move
 
-        if player == COMP:
+        if player == MAX:
             best_eval = max(best_eval, curr_eval, key=lambda x: x[2])
         else:
             best_eval = min(best_eval, curr_eval, key=lambda x: x[2])
@@ -172,11 +172,11 @@ def comp_turn():
     if is_game_over(board):
         return
     
-    move = minimax(board, len(empty_spaces(board)), COMP)
+    move = minimax(board, len(empty_spaces(board)), MAX)
     pos_x, pos_y = move[0], move[1]
     
     print('Computer Turn (O):')
-    make_move(COMP, pos_x, pos_y)    
+    make_move(MAX, pos_x, pos_y)    
 
 
 
@@ -185,9 +185,10 @@ def comp_turn():
 
 
 def main():
-    print("    Welcome to Tic-Tac-Toe!")
+    print("\nWelcome to Tic-Tac-Toe!")
+    print("Here's a layout of the board for your reference.")
     display_board(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
-    
+
     while not is_game_over(board):
         human_turn()
         display_board(convert_board_to_input())
@@ -195,9 +196,9 @@ def main():
         comp_turn()
         display_board(convert_board_to_input())
 
-    if win(HUMAN, board):
+    if win(MIN, board):
         print("Congratualations, you've somehow beaten the unbeatable AI!")
-    elif win(COMP, board):
+    elif win(MAX, board):
         print("Game Over! You Lost.")
     else:
         print("Draw!")
